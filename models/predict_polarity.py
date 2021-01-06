@@ -2,7 +2,6 @@ import json_lines
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
@@ -30,7 +29,7 @@ cross_validation = CrossValidate()
 nltk.download('punkt')
 nltk.download('stopwords')
 
-# ------- Get data -------
+# ------- GET DATA -------
 X = []
 y = []
 z = []
@@ -42,7 +41,7 @@ with open("../data/new_data.jl", "rb") as f:
         z.append(item["early_access"])
 
 
-# --- Process the text, vectorize, tokenize, stemmers, etc.
+# --- TEXT PROCESSING ---
 def process_data(X_value):
     tokenizer = CountVectorizer().build_tokenizer()
     stemmer = PorterStemmer()
@@ -60,38 +59,32 @@ def process_data(X_value):
         processed_text = " ".join(processed_text)
         total_x.append(processed_text)
 
-    # vectorizer = TfidfVectorizer(
-    # stop_words=nltk.corpus.stopwords.words('english'),
-    # tokenizer=LemmaTokenizer(),
-    # strip_accents='ascii',
-    # min_df=0.0005,
-    # sublinear_tf=True,
-    # max_df=0.8,
-    # )
-    vectorizer = CountVectorizer(
-        # lowercase=True,
-        max_df=0.8,
-        # min_df=10,
-        stop_words=nltk.corpus.stopwords.words('english'))
-    X_vectorized = vectorizer.fit_transform(total_x)
-    X_vectorized = X_vectorized.toarray()
-    return X_vectorized
+    return total_x
 
 
-# --- Now good data ---
 X = process_data(X)
 y = np.array(y) * 1
 
+# --- CROSS VALIDATION ---
+
+# cross_validation.do_cross_validation_max_df(X, y)
+# exit(1)
+
+vectorizer = TfidfVectorizer(
+    stop_words=nltk.corpus.stopwords.words('english'),
+    max_df=0.8,
+)
+
+X = vectorizer.fit_transform(X).toarray()
+# cross_validation.do_cross_validation_knn(X, y)
 # cross_validation.do_cross_validation_kfold(X, y)
 # cross_validation.do_cross_validation_c(X, y)
-# cross_validation.do_cross_validation_knn(X, y)
 # exit(1)
-print("--- Begin model training ---")
 
+# --- MODEL TRAINING ---
 plt.figure(1)
 preds = []
 k = 100
-
 kf = KFold(n_splits=k)
 print("KFOLD: ", k)
 count = 0
@@ -103,5 +96,6 @@ for train, test in kf.split(X):
     predictions = model.predict(X[test])
     preds.extend(predictions)
 
+# --- EVALUATION ---
 evaluator.calculate_confusion_matrix(y, preds, "-><-")
-evaluator.plot_roc_curve(y, preds, "KNN = 50; KFold = 100")
+evaluator.plot_roc_curve(y, preds, "KNN KFold = 100, Neighbours = 40")

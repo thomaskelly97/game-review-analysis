@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve
+from sklearn.metrics import recall_score, f1_score, accuracy_score, precision_score
 
 
 class Evaluate:
@@ -9,10 +10,15 @@ class Evaluate:
         tn, fp, fn, tp = confusion_matrix(truth, pred).ravel()
         print("--- Model ", model, " ---")
         print("Confusion Matrix (tn, fp, fn, tp): ", tn, fp, fn, tp)
-        acc = (tp + tn) / (tp + fp + fn + tp)
-        prec = tp / (tp + fp)
-        recall = tp / (tp + fn)
-        f1 = 2 * ((prec * recall) / (prec + recall))
+
+        # acc = ((tp + tn) / (tp + fp + fn + tp))
+        # prec = (tp / (tp + fp))
+        # recall = (tp / (tp + fn))
+        # f1 = 2 * ((prec * recall) / (prec + recall))
+        acc = accuracy_score(truth, pred)
+        recall = recall_score(truth, pred)
+        prec = precision_score(truth, pred)
+        f1 = f1_score(truth, pred)
         print("-- Metrics --")
         print("> Accuracy: ", acc)
         print("> Precision: ", prec)

@@ -31,21 +31,12 @@ cross_validation = CrossValidate()
 nltk.download('punkt')
 nltk.download('stopwords')
 
-
-class LemmaTokenizer(object):
-    def __init__(self):
-        self.wnl = WordNetLemmatizer()
-
-    def __call__(self, articles):
-        return [self.wnl.lemmatize(t) for t in word_tokenize(articles)]
-
-
 # ------- Get data -------
 X = []
 y = []
 z = []
 
-with open("../data/new_data.jl", "rb") as f:
+with open("../data/balanced_early_access.jl", "rb") as f:
     for item in json_lines.reader(f):
         X.append(item['text'])
         y.append(item["voted_up"])
@@ -102,16 +93,16 @@ print("--- Begin model training ---")
 
 plt.figure(1)
 preds = []
-k = 25
+k = 100
 
 kf = KFold(n_splits=k)
 print("KFOLD: ", k)
 for train, test in kf.split(X):
     print("-> ")
-    model = LogisticRegression(random_state=0)
+    model = MultinomialNB()
     model.fit(X[train], z[train])
     predictions = model.predict(X[test])
     preds.extend(predictions)
 
-evaluator.calculate_confusion_matrix(y, preds, "Logistic Regression")
-evaluator.plot_roc_curve(y, preds, "Classifier KFold = 50")
+evaluator.calculate_confusion_matrix(z, preds, "Logistic Regression")
+evaluator.plot_roc_curve(z, preds, "Classifier KFold = 50")
