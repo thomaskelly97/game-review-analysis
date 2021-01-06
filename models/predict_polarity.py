@@ -15,7 +15,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from nltk.stem import PorterStemmer
 from sklearn.metrics import accuracy_score
-from googletrans import Translator, constants
 import matplotlib.pyplot as plt
 from nltk.stem import WordNetLemmatizer
 from nltk import word_tokenize
@@ -31,15 +30,6 @@ cross_validation = CrossValidate()
 nltk.download('punkt')
 nltk.download('stopwords')
 
-
-class LemmaTokenizer(object):
-    def __init__(self):
-        self.wnl = WordNetLemmatizer()
-
-    def __call__(self, articles):
-        return [self.wnl.lemmatize(t) for t in word_tokenize(articles)]
-
-
 # ------- Get data -------
 X = []
 y = []
@@ -54,7 +44,6 @@ with open("../data/new_data.jl", "rb") as f:
 
 # --- Process the text, vectorize, tokenize, stemmers, etc.
 def process_data(X_value):
-    translator = Translator()
     tokenizer = CountVectorizer().build_tokenizer()
     stemmer = PorterStemmer()
     total_x = []
@@ -71,20 +60,19 @@ def process_data(X_value):
         processed_text = " ".join(processed_text)
         total_x.append(processed_text)
 
-    vectorizer = TfidfVectorizer(
-        stop_words=nltk.corpus.stopwords.words('english'),
-        # tokenizer=LemmaTokenizer(),
-        #     strip_accents='ascii',
-        #     min_df=0.0005,
-        # sublinear_tf=True,
-        max_df=0.8,
-    )
-    # vectorizer = CountVectorizer(
+    # vectorizer = TfidfVectorizer(
+    # stop_words=nltk.corpus.stopwords.words('english'),
     # tokenizer=LemmaTokenizer(),
-    # lowercase=True,
-    # max_df=0.5,
-    # min_df=10,
-    # stop_words=nltk.corpus.stopwords.words('english'))
+    # strip_accents='ascii',
+    # min_df=0.0005,
+    # sublinear_tf=True,
+    # max_df=0.8,
+    # )
+    vectorizer = CountVectorizer(
+        # lowercase=True,
+        max_df=0.8,
+        # min_df=10,
+        stop_words=nltk.corpus.stopwords.words('english'))
     X_vectorized = vectorizer.fit_transform(total_x)
     X_vectorized = X_vectorized.toarray()
     return X_vectorized
@@ -97,21 +85,23 @@ y = np.array(y) * 1
 # cross_validation.do_cross_validation_kfold(X, y)
 # cross_validation.do_cross_validation_c(X, y)
 # cross_validation.do_cross_validation_knn(X, y)
-
+# exit(1)
 print("--- Begin model training ---")
 
 plt.figure(1)
 preds = []
-k = 5
+k = 100
 
 kf = KFold(n_splits=k)
 print("KFOLD: ", k)
+count = 0
 for train, test in kf.split(X):
-    print("-> ")
-    model = KNeighborsClassifier(n_neighbors=5)
+    print("-> ", count)
+    count = count + 1
+    model = KNeighborsClassifier(n_neighbors=50)
     model.fit(X[train], y[train])
     predictions = model.predict(X[test])
     preds.extend(predictions)
 
-evaluator.calculate_confusion_matrix(y, preds, "Logistic Regression")
-evaluator.plot_roc_curve(y, preds, "MLPClassifier KFold = 50")
+evaluator.calculate_confusion_matrix(y, preds, "-><-")
+evaluator.plot_roc_curve(y, preds, "KNN = 50; KFold = 100")

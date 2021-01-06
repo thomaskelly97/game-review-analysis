@@ -6,6 +6,7 @@ from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error
 import numpy as np
 from evaluate import Evaluate
+from sklearn.naive_bayes import MultinomialNB
 
 evaluator = Evaluate()
 
@@ -18,28 +19,30 @@ class CrossValidate():
         return values[index_of_best]
 
     def do_cross_validation_kfold(self, X, y):
-        k_folds = [2, 5, 10, 25, 50, 100]
+        k_folds = [10, 25, 50, 100]
 
         mean_mse = []
         var_mse = []
         std_mse = []
         for folds in k_folds:
             mse = []
+            preds = []
             kf = KFold(n_splits=folds)
             print("KFold = ", folds)
             for train, test in kf.split(X):
                 print("training...")
-                model = LogisticRegression().fit(X[train], y[train])
+                model = MultinomialNB().fit(X[train], y[train])
                 pred = model.predict(X[test])
+                preds.extend(pred)
                 mse.append(mean_squared_error(y[test], pred))
 
             mean_mse.append(np.mean(mse))
             var_mse.append(np.var(mse))
             std_mse.append(np.std(mse))
-
+            evaluator.calculate_confusion_matrix(y, preds, "-><-")
         print("--- Results ---")
         print("-> KFold Cross Val. -> Recommended: Lowest variance @ KFolds =",
-              optimal_value(mean_mse, k_folds))
+              self.optimal_value(mean_mse, k_folds))
 
         plt.figure()
         kf_vals = ['2', '5', '10', '25', '50', '100']
@@ -64,21 +67,25 @@ class CrossValidate():
         for c in c_values:
             mse = []
             print("C = ", c)
+            preds = []
             kf = KFold(n_splits=5)
 
             for train, test in kf.split(X):
+                print("--")
                 model = SVC(C=c, kernel='rbf').fit(X[train], y[train])
                 pred = model.predict(X[test])
+                preds.extend(pred)
                 mse.append(mean_squared_error(y[test], pred))
 
             mean_mse.append(np.mean(mse))
             var_mse.append(np.var(mse))
             std_mse.append(np.std(mse))
-
+            evaluator.calculate_confusion_matrix(y, preds, "-><-")
+        print("MEAN: ", mean_mse)
         print("--- Results ---")
         print(
             "-> Hyperparam C Cross Val. -> Recommended: Lowest variance @ C =",
-            optimal_value(mean_mse, c_values))
+            self.optimal_value(mean_mse, c_values))
 
         plt.figure()
         plt.errorbar(c_values,
