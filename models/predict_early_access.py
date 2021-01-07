@@ -99,10 +99,12 @@ kf = KFold(n_splits=k)
 print("KFOLD: ", k)
 for train, test in kf.split(X):
     print("-> ")
-    model = MultinomialNB()
+    model = LogisticRegression()
     model.fit(X[train], z[train])
     predictions = model.predict(X[test])
     preds.extend(predictions)
 
-evaluator.calculate_confusion_matrix(z, preds, "Logistic Regression")
-evaluator.plot_roc_curve(z, preds, "Classifier KFold = 50")
+evaluator.calculate_confusion_matrix(z, preds,
+                                     "Logistic Regression, Equalised Data")
+evaluator.plot_roc_curve(z, preds,
+                         "Logistic Regression, Equalised Data, KFold = 100")

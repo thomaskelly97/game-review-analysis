@@ -91,7 +91,7 @@ count = 0
 for train, test in kf.split(X):
     print("-> ", count)
     count = count + 1
-    model = KNeighborsClassifier(n_neighbors=50)
+    model = LogisticRegression()
     model.fit(X[train], y[train])
     predictions = model.predict(X[test])
     preds.extend(predictions)

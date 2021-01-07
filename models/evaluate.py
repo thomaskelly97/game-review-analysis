@@ -11,10 +11,6 @@ class Evaluate:
         print("--- Model ", model, " ---")
         print("Confusion Matrix (tn, fp, fn, tp): ", tn, fp, fn, tp)
 
-        # acc = ((tp + tn) / (tp + fp + fn + tp))
-        # prec = (tp / (tp + fp))
-        # recall = (tp / (tp + fn))
-        # f1 = 2 * ((prec * recall) / (prec + recall))
         acc = accuracy_score(truth, pred)
         recall = recall_score(truth, pred)
         prec = precision_score(truth, pred)
