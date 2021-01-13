@@ -3,19 +3,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import mean_squared_error
-import sklearn.preprocessing as prep
+from sklearn.metrics import mean_squared_error, accuracy_score
 from sklearn.model_selection import KFold
-from sklearn.metrics import log_loss
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.feature_extraction.text import CountVectorizer
 from nltk.stem import PorterStemmer
-from sklearn.metrics import accuracy_score
-import matplotlib.pyplot as plt
-from nltk.stem import WordNetLemmatizer
 from nltk import word_tokenize
 import re
 from sklearn.naive_bayes import MultinomialNB
@@ -43,7 +36,7 @@ with open("../data/new_data.jl", "rb") as f:
 
 # --- TEXT PROCESSING ---
 def process_data(X_value):
-    tokenizer = CountVectorizer().build_tokenizer()
+    tokenizer = TfidfVectorizer().build_tokenizer()
     stemmer = PorterStemmer()
     total_x = []
 
@@ -66,7 +59,6 @@ X = process_data(X)
 y = np.array(y) * 1
 
 # --- CROSS VALIDATION ---
-
 # cross_validation.do_cross_validation_max_df(X, y)
 # exit(1)
 
@@ -86,7 +78,6 @@ plt.figure(1)
 preds = []
 k = 100
 kf = KFold(n_splits=k)
-print("KFOLD: ", k)
 count = 0
 for train, test in kf.split(X):
     print("-> ", count)

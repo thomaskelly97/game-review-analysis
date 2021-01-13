@@ -12,17 +12,9 @@ from pprint import pprint
 # # NORMAL LANGUAGES
 translator = google_translator()
 
-exampleSpanish = "Me gusta las chicas y los petchotes grande!"
-
-translation = translator.translate("Me gusta las chicas")
-howya = translator.detect(exampleSpanish)
-print("Translate: ", translation)
-print("Detect: ", howya)
-
 
 def translate_cyrillic(text):
     decoded = ftfy.fix_text(text)
-    print("---------> decoded: ", decoded)
     return decoded
 
 
@@ -44,5 +36,4 @@ with codecs.open("../data/reviews_37.jl", "rb") as f:
             "voted_up": item['voted_up'],
             "early_access": item['early_access']
         }
-        print("THE OBJECT: ", build_obj)
         write_file.write(json.dumps(build_obj))
